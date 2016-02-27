@@ -1,11 +1,10 @@
 package com.genModel;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,13 +15,12 @@ import com.finance.model.ChangePowersModel;
 import com.finance.model.mao.ChangePowersMAO;
 import com.finance.stock.model.fenjia;
 import com.finance.util.DownloadUtil;
+import com.finance.util.ExcelUtil;
 import com.finance.util.FileList;
 import com.finance.util.FinanceStockList;
 import com.finance.util.MapUtil;
 import com.finance.util.TxtUtil;
-import com.pool.Agu;
-import com.pool.BankFinancePool;
-import com.pool.My;
+import com.pool.P6_10;
 
 public class genPowerModel {
 	public static String baseUrl = "http://market.finance.sina.com.cn/downxls.php?date=[#]&symbol=$$";
@@ -33,8 +31,10 @@ public class genPowerModel {
 	 *  1.下载pool里的股票池.
 	 *  2.结项下载后的文件
 	 *  3.生成数据.
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException, IOException {
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 			Date now = new Date();
 			try {
@@ -46,13 +46,14 @@ public class genPowerModel {
 //				new genPowerModel().genModelPowerExcel(baseUrl,from,to,filePath,2);
 //				String[] pool = Agu.pool; {}
 //				String[] pool = {"600332","600085","600000","600109","601377"};
-				String[] pool = {"600399"};	
+//				String[] pool = {"600399"};	
+				String[] pool = P6_10.strs;
 				String filePath = "E:\\baidu\\finance_project\\model\\";
 				// first download ....
 				DownloadUtil downloader = new DownloadUtil();
-				for(int i = 0;i<pool.length;i++) {
-					downloader.downloadCJMX(baseUrl,pool[i],from,to,filePath);
-				}
+//				for(int i = 0;i<pool.length;i++) {
+//					downloader.downloadCJMX(baseUrl,pool[i],from,to,filePath);
+//				}
 				new genPowerModel().genModelOne(baseUrl,from,to,pool);
 				String[] temp = new String[]{""};
 //				for(int i = 0;i<pool.length;i++) {
@@ -116,15 +117,15 @@ public class genPowerModel {
 					big++;
 				}
 			}
-			System.out.println("特大单笔数:"+bbig);
-			System.out.println("大单笔数:"+big);
-			System.out.println("小单笔数:"+small);
-			System.out.println("特大单买入量:"+bbbig_buy);
-			System.out.println("特大单卖出量:"+bbbig_sell);
-			System.out.println("大单买入量:"+b_buy);
-			System.out.println("大单卖出量:"+b_sell);
-			System.out.println("小单买入量:"+s_buy);
-			System.out.println("小单卖出量:"+s_sell);
+//			System.out.println("特大单笔数:"+bbig);
+//			System.out.println("大单笔数:"+big);
+//			System.out.println("小单笔数:"+small);
+//			System.out.println("特大单买入量:"+bbbig_buy);
+//			System.out.println("特大单卖出量:"+bbbig_sell);
+//			System.out.println("大单买入量:"+b_buy);
+//			System.out.println("大单卖出量:"+b_sell);
+//			System.out.println("小单买入量:"+s_buy);
+//			System.out.println("小单卖出量:"+s_sell);
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -183,15 +184,15 @@ public class genPowerModel {
 					big++;
 				}
 			}
-			System.out.println("特大单笔数:"+bbig);
-			System.out.println("大单笔数:"+big);
-			System.out.println("小单笔数:"+small);
-			System.out.println("特大单买入量:"+bbbig_buy);
-			System.out.println("特大单卖出量:"+bbbig_sell);
-			System.out.println("大单买入量:"+b_buy);
-			System.out.println("大单卖出量:"+b_sell);
-			System.out.println("小单买入量:"+s_buy);
-			System.out.println("小单卖出量:"+s_sell);
+//			System.out.println("特大单笔数:"+bbig);
+//			System.out.println("大单笔数:"+big);
+//			System.out.println("小单笔数:"+small);
+//			System.out.println("特大单买入量:"+bbbig_buy);
+//			System.out.println("特大单卖出量:"+bbbig_sell);
+//			System.out.println("大单买入量:"+b_buy);
+//			System.out.println("大单卖出量:"+b_sell);
+//			System.out.println("小单买入量:"+s_buy);
+//			System.out.println("小单卖出量:"+s_sell);
 		}
 		} catch (IOException | ParseException e) {
 			// TODO Auto-generated catch block
@@ -240,7 +241,7 @@ public class genPowerModel {
 	}
 	
 
-	public void genModelOne(String basurl,Date from,Date to,String[] pool){
+	public void genModelOne(String basurl,Date from,Date to,String[] pool) throws FileNotFoundException, IOException{
 		String code = "";
 //		String pool[] = My.pool;
 //		String pool[] = new String[]{"002497"};
@@ -253,6 +254,7 @@ public class genPowerModel {
 //			downloader.downloadCJMX(basurl,code,from,to,filePath);
 			String[] files = FileList.fileList(filePath);
 			Map[] all = new Map[files.length];
+			String preOutput = "";
 			for(int i = 0;i<files.length;i++) {
 				if (files[i].indexOf(code) >=0) {
 					String bi = genSingleBi(files[i]);
@@ -261,8 +263,16 @@ public class genPowerModel {
 					List list =mao.toCVMModel(files[i],"2015-08-07");
 					//MapUtil.printMap(model.change_powers);  //console打印模型
 					double power = MapUtil.toValue(model.change_powers);
+					
 					String list3str = MapUtil.list3(list);
-					System.out.println(power+"\t"+model.size+"\t"+bi+"\t"+list3str);
+					String output = power+"\t"+model.size+"\t"+bi+"\t"+list3str;
+					preOutput = output;
+//					System.out.println(output);
+					if (power > 0) {
+						ExcelUtil.writeExcel("E:\\Cloud\\finance\\output.txt", files[i]	, i, (i==files.length-1) ? true : false);
+						
+						ExcelUtil.writeExcel("E:\\Cloud\\finance\\output.txt", output, i, (i==files.length-1) ? true : false);
+					}
 				}
 			}
 		}

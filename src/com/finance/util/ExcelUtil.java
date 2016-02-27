@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -203,7 +204,16 @@ public class ExcelUtil {
 		
 	}
 	
-	
+	public static void writeExcel(String path,String str,int num,boolean end ) throws FileNotFoundException, IOException{
+		// 打开一个随机访问文件流，按读写方式
+		RandomAccessFile randomFile = new RandomAccessFile(path, "rw");
+		// 文件长度，字节数
+		long fileLength = randomFile.length();
+		// 将写文件指针移到文件尾。
+		randomFile.seek(fileLength);
+		randomFile.writeBytes(str+"\r\n");
+		randomFile.close();
+	}
 	public static void genExcel(Map[] data,String path) {
 		try {	
 		// 创建Excel的工作书册 Workbook,对应到一个excel文档  
@@ -273,17 +283,18 @@ public class ExcelUtil {
 			//List list = getColData(1,1);
 			//System.out.println("平均数:"+ArthUtil.meanList(list));
 			//.out.println("中间数:"+ArthUtil.middleList(list));
+			writeExcel("E:\\Cloud\\finance\\a.txt","asdf",0,true);
+
+//			Double ds[] = getColDoubleDate(1,1);
+//
+//			//ArrayUtil.printArray(ds);
+//			ArrayUtil.selectSort(ds);
 			
-
-			Double ds[] = getColDoubleDate(1,1);
-
 			//ArrayUtil.printArray(ds);
-			ArrayUtil.selectSort(ds);
-			//ArrayUtil.printArray(ds);
-			System.out.println("a");
-			System.out.println("中间数:"+ds[ds.length%2==0 ? ds.length/2 : (ds.length+1)/2]);
-			System.out.println("最大数:"+ds[ds.length-1]);
-			System.out.println("最小数:"+ds[0]);
+//			System.out.println("a");
+//			System.out.println("中间数:"+ds[ds.length%2==0 ? ds.length/2 : (ds.length+1)/2]);
+//			System.out.println("最大数:"+ds[ds.length-1]);
+//			System.out.println("最小数:"+ds[0]);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
